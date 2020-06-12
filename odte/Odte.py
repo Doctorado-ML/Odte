@@ -91,6 +91,7 @@ class Odte(BaseEstimator, ClassifierMixin):
         self.n_classes_ = self.classes_.shape[0]
         self.estimators_ = []
         self._train(X, y, sample_weight)
+        return self
 
     def _train(
         self, X: np.array, y: np.array, sample_weight: np.array
@@ -109,7 +110,7 @@ class Odte(BaseEstimator, ClassifierMixin):
             weights_update = np.bincount(indices, minlength=n_samples)
             current_weights = weights * weights_update
             # train the classifier
-            clf.fit(X[indices, :], y[indices, :], current_weights[indices, :])
+            clf.fit(X[indices, :], y[indices], current_weights[indices])
 
     def _get_bootstrap_n_samples(self, n_samples) -> int:
         if self.max_samples is None:
@@ -131,14 +132,15 @@ class Odte(BaseEstimator, ClassifierMixin):
             {type(self.max_samples)}"
         )
 
-    def predict(self, X: np.array):
+    def predict(self, X: np.array) -> np.array:
         # todo
         check_is_fitted(self, ["estimators_"])
         # Input validation
         X = check_array(X)
+        return np.ones((X.shape[0]),)
 
     def score(
-        self, X: np.array, y: np.array, sample_weight: np.array
+        self, X: np.array, y: np.array, sample_weight: np.array = None
     ) -> float:
         # todo
         check_is_fitted(self, ["estimators_"])

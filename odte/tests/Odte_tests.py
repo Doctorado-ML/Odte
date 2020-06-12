@@ -1,6 +1,9 @@
 import unittest
 import numpy as np
 
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+
 from odte import Odte
 from .utils import load_dataset
 
@@ -47,3 +50,26 @@ class Odte_test(unittest.TestCase):
         for value in computed.tolist():
             self.assertGreaterEqual(value, 101)
             self.assertLessEqual(value, 1000)
+
+    def test_bogus_n_estimator(self):
+        values = [0, -1]
+        for n_estimators in values:
+            with self.assertRaises(ValueError):
+                tclf = Odte(n_estimators=n_estimators)
+                tclf.fit(*load_dataset(self._random_state))
+
+    def test_predict(self):
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        X, y = load_dataset(self._random_state)
+        expected = np.ones(y.shape[0])
+        tclf = Odte(random_state=self._random_state)
+        computed = tclf.fit(X, y).predict(X)
+        self.assertListEqual(expected.tolist(), computed.tolist())
+
+    def test_score(self):
+        X, y = load_dataset(self._random_state)
+        expected = 0.5
+        tclf = Odte(random_state=self._random_state)
+        computed = tclf.fit(X, y).score(X, y)
+        self.assertAlmostEqual(expected, computed)
