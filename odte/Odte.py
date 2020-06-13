@@ -12,6 +12,7 @@ from sklearn.utils import check_consistent_length
 from sklearn.metrics._classification import _weighted_sum, _check_targets
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.base import BaseEstimator, ClassifierMixin
+from scipy.stats import mode
 from sklearn.utils.validation import (
     check_X_y,
     check_array,
@@ -76,9 +77,9 @@ class Odte(BaseEstimator, ClassifierMixin):
         self, X: np.array, y: np.array, sample_weight: np.array = None
     ) -> "Odte":
         # Check parameters are Ok.
-        if self.n_estimators < 10:
+        if self.n_estimators < 3:
             raise ValueError(
-                f"n_estimators must be greater than 9... got (n_estimators=\
+                f"n_estimators must be greater than 3... got (n_estimators=\
                     {self.n_estimators:f})"
             )
         # the rest of parameters are checked in estimator
@@ -115,13 +116,13 @@ class Odte(BaseEstimator, ClassifierMixin):
     def _get_bootstrap_n_samples(self, n_samples) -> int:
         if self.max_samples is None:
             return n_samples
-        if type(self.max_samples) == int:
+        if isinstance(self.max_samples, int):
             if not (1 <= self.max_samples <= n_samples):
                 message = f"max_samples should be in the range 1 to \
                     {n_samples} but got {self.max_samples}"
                 raise ValueError(message)
             return self.max_samples
-        if type(self.max_samples) == float:
+        if isinstance(self.max_samples, float):
             if not (0 < self.max_samples < 1):
                 message = f"max_samples should be in the range (0, 1)\
                     but got {self.max_samples}"
@@ -137,7 +138,10 @@ class Odte(BaseEstimator, ClassifierMixin):
         check_is_fitted(self, ["estimators_"])
         # Input validation
         X = check_array(X)
-        return np.ones((X.shape[0]),)
+        result = np.empty((X.shape[0], self.n_estimators))
+        for index, tree in enumerate(self.estimators_):
+            result[:, index] = tree.predict(X)
+        return mode(result, axis=1).mode.ravel()
 
     def score(
         self, X: np.array, y: np.array, sample_weight: np.array = None
@@ -148,7 +152,7 @@ class Odte(BaseEstimator, ClassifierMixin):
         X, y = check_X_y(X, y)
         y_pred = self.predict(X).reshape(y.shape)
         # Compute accuracy for each possible representation
-        y_type, y_true, y_pred = _check_targets(y, y_pred)
+        _, y_true, y_pred = _check_targets(y, y_pred)
         check_consistent_length(y_true, y_pred, sample_weight)
         score = y_true == y_pred
         return _weighted_sum(score, sample_weight, normalize=True)

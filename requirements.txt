@@ -2,4 +2,4 @@ numpy
 scikit-learn
 pandas
 ipympl
-stree
+git+https://github.com/doctorado-ml/stree

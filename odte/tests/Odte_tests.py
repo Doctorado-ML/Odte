@@ -52,24 +52,37 @@ class Odte_test(unittest.TestCase):
             self.assertLessEqual(value, 1000)
 
     def test_bogus_n_estimator(self):
-        values = [0, -1]
+        values = [0, -1, 2]
         for n_estimators in values:
             with self.assertRaises(ValueError):
                 tclf = Odte(n_estimators=n_estimators)
                 tclf.fit(*load_dataset(self._random_state))
 
+    def test_simple_predict(self):
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
+        expected = [0, 1, 1, 0]
+        tclf = Odte(
+            random_state=self._random_state, n_estimators=10, kernel="rbf"
+        )
+        computed = tclf.fit(X, y).predict(X)
+        self.assertListEqual(expected, computed.tolist())
+
     def test_predict(self):
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         X, y = load_dataset(self._random_state)
-        expected = np.ones(y.shape[0])
-        tclf = Odte(random_state=self._random_state)
+        expected = y
+        tclf = Odte(
+            random_state=self._random_state, n_estimators=10, kernel="linear"
+        )
         computed = tclf.fit(X, y).predict(X)
-        self.assertListEqual(expected.tolist(), computed.tolist())
+        self.assertListEqual(expected[:27].tolist(), computed[:27].tolist())
 
     def test_score(self):
         X, y = load_dataset(self._random_state)
-        expected = 0.5
-        tclf = Odte(random_state=self._random_state)
+        expected = 0.9526666666666667
+        tclf = Odte(random_state=self._random_state, n_estimators=10)
         computed = tclf.fit(X, y).score(X, y)
         self.assertAlmostEqual(expected, computed)
