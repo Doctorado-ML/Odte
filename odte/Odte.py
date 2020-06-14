@@ -34,12 +34,14 @@ class Odte(BaseEstimator, ClassifierMixin):
         min_samples_split: int = 0,
         bootstrap: bool = True,
         split_criteria: str = "min_distance",
+        criterion: str = "gini",
         tol: float = 1e-4,
         gamma="scale",
         degree: int = 3,
         kernel: str = "linear",
         max_features="auto",
         max_samples=None,
+        splitter: str = "random",
     ):
         self.n_estimators = n_estimators
         self.bootstrap = bootstrap
@@ -52,11 +54,14 @@ class Odte(BaseEstimator, ClassifierMixin):
             min_samples_split=min_samples_split,
             max_depth=max_depth,
             split_criteria=split_criteria,
+            criterion=criterion,
             kernel=kernel,
             max_iter=max_iter,
             tol=tol,
             degree=degree,
             gamma=gamma,
+            splitter=splitter,
+            max_features=max_features,
         )
 
     def _initialize_random(self) -> np.random.mtrand.RandomState:

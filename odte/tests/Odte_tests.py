@@ -14,7 +14,7 @@ class Odte_test(unittest.TestCase):
         super().__init__(*args, **kwargs)
 
     def test_max_samples_bogus(self):
-        values = [0, 3000, 1.1, 0.0, "hi!"]
+        values = [0, 3000, 1.1, 0.0, "duck"]
         for max_samples in values:
             with self.assertRaises(ValueError):
                 tclf = Odte(max_samples=max_samples)
@@ -75,7 +75,10 @@ class Odte_test(unittest.TestCase):
         X, y = load_dataset(self._random_state)
         expected = y
         tclf = Odte(
-            random_state=self._random_state, n_estimators=10, kernel="linear"
+            random_state=self._random_state,
+            max_features=None,
+            kernel="linear",
+            max_samples=0.1,
         )
         computed = tclf.fit(X, y).predict(X)
         self.assertListEqual(expected[:27].tolist(), computed[:27].tolist())
@@ -83,6 +86,23 @@ class Odte_test(unittest.TestCase):
     def test_score(self):
         X, y = load_dataset(self._random_state)
         expected = 0.9526666666666667
-        tclf = Odte(random_state=self._random_state, n_estimators=10)
+        tclf = Odte(
+            random_state=self._random_state, max_features=None, n_estimators=10
+        )
         computed = tclf.fit(X, y).score(X, y)
         self.assertAlmostEqual(expected, computed)
+
+    def test_score_splitter_max_features(self):
+        X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
+        results = [1.0, 0.94, 0.9933333333333333, 0.9933333333333333]
+        for max_features in ["auto", None]:
+            for splitter in ["best", "random"]:
+                tclf = Odte(
+                    random_state=self._random_state,
+                    splitter=splitter,
+                    max_features=max_features,
+                    n_estimators=10,
+                )
+                expected = results.pop(0)
+                computed = tclf.fit(X, y).score(X, y)
+                self.assertAlmostEqual(expected, computed)
