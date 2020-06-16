@@ -32,7 +32,6 @@ class Odte(BaseEstimator, ClassifierMixin):
         max_iter: int = 1000,
         max_depth: int = None,
         min_samples_split: int = 0,
-        bootstrap: bool = True,
         split_criteria: str = "min_distance",
         criterion: str = "gini",
         tol: float = 1e-4,
@@ -44,10 +43,9 @@ class Odte(BaseEstimator, ClassifierMixin):
         splitter: str = "random",
     ):
         self.n_estimators = n_estimators
-        self.bootstrap = bootstrap
         self.random_state = random_state
         self.max_features = max_features
-        self.max_samples = max_samples
+        self.max_samples = max_samples  # size of bootstrap
         self.estimator_params = dict(
             C=C,
             random_state=random_state,
@@ -70,8 +68,9 @@ class Odte(BaseEstimator, ClassifierMixin):
         else:
             return np.random.RandomState(self.random_state)
 
+    @staticmethod
     def _initialize_sample_weight(
-        self, sample_weight: np.array, n_samples: int
+        sample_weight: np.array, n_samples: int
     ) -> np.array:
         if sample_weight is None:
             return np.ones((n_samples,), dtype=np.float64)
