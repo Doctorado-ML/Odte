@@ -62,9 +62,13 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
-        expected = [0, 1, 1, 0]
-        tclf = Odte(
-            random_state=self._random_state, n_estimators=10, kernel="rbf"
+        expected = [1, 1, 1, 1]
+        tclf = Odte(random_state=self._random_state, n_estimators=10,)
+        tclf.set_params(
+            **dict(
+                base_estimator__kernel="rbf",
+                base_estimator__random_state=self._random_state,
+            )
         )
         computed = tclf.fit(X, y).predict(X)
         self.assertListEqual(expected, computed.tolist())
@@ -77,32 +81,47 @@ class Odte_test(unittest.TestCase):
         tclf = Odte(
             random_state=self._random_state,
             max_features=None,
-            kernel="linear",
             max_samples=0.1,
         )
+        tclf.set_params(**dict(base_estimator__kernel="linear",))
         computed = tclf.fit(X, y).predict(X)
         self.assertListEqual(expected[:27].tolist(), computed[:27].tolist())
 
     def test_score(self):
         X, y = load_dataset(self._random_state)
-        expected = 0.9526666666666667
+        expected = 0.948
         tclf = Odte(
-            random_state=self._random_state, max_features=None, n_estimators=10
+            random_state=self._random_state,
+            max_features=None,
+            n_estimators=10,
         )
         computed = tclf.fit(X, y).score(X, y)
         self.assertAlmostEqual(expected, computed)
 
     def test_score_splitter_max_features(self):
         X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
-        results = [1.0, 0.94, 0.9933333333333333, 0.9933333333333333]
+        results = [
+            0.9866666666666667,
+            0.9866666666666667,
+            0.9866666666666667,
+            0.9866666666666667,
+        ]
         for max_features in ["auto", None]:
             for splitter in ["best", "random"]:
                 tclf = Odte(
                     random_state=self._random_state,
-                    splitter=splitter,
                     max_features=max_features,
                     n_estimators=10,
                 )
+                tclf.set_params(**dict(base_estimator__splitter=splitter,))
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
                 self.assertAlmostEqual(expected, computed)
+
+    @staticmethod
+    def test_is_a_sklearn_classifier():
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        from sklearn.utils.estimator_checks import check_estimator
+
+        check_estimator(Odte())
