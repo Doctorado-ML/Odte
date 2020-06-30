@@ -37,6 +37,28 @@ class Odte_test(unittest.TestCase):
             computed = tclf._initialize_sample_weight(value, m)
             self.assertListEqual(expected.tolist(), computed.tolist())
 
+    def test_initialize_max_feature(self):
+        expected_values = [
+            [0, 4, 10, 11],
+            [0, 2, 3, 5, 14, 15],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            [0, 4, 10, 11],
+            [0, 4, 10, 11],
+            [0, 4, 10, 11],
+        ]
+        X, y = load_dataset(
+            random_state=self._random_state, n_features=16, n_samples=10
+        )
+        for max_features in [4, 0.4, 1.0, None, "auto", "sqrt", "log2"]:
+            tclf = Odte(
+                random_state=self._random_state, max_features=max_features
+            )
+            tclf.fit(X, y)
+            computed = tclf._get_random_subspace(X, y)
+            expected = expected_values.pop(0)
+            self.assertListEqual(expected, list(computed))
+
     def test_initialize_random(self):
         expected = [37, 235, 908]
         tclf = Odte(random_state=self._random_state)
@@ -50,6 +72,13 @@ class Odte_test(unittest.TestCase):
         for value in computed.tolist():
             self.assertGreaterEqual(value, 101)
             self.assertLessEqual(value, 1000)
+
+    def test_bogus_max_features(self):
+        values = ["duck", -0.1, 0.0]
+        for max_features in values:
+            with self.assertRaises(ValueError):
+                tclf = Odte(max_features=max_features)
+                tclf.fit(*load_dataset(self._random_state))
 
     def test_bogus_n_estimator(self):
         values = [0, -1, 2]
@@ -79,9 +108,7 @@ class Odte_test(unittest.TestCase):
         X, y = load_dataset(self._random_state)
         expected = y
         tclf = Odte(
-            random_state=self._random_state,
-            max_features=None,
-            max_samples=0.1,
+            random_state=self._random_state, max_features=1.0, max_samples=0.1,
         )
         tclf.set_params(**dict(base_estimator__kernel="linear",))
         computed = tclf.fit(X, y).predict(X)
@@ -101,8 +128,8 @@ class Odte_test(unittest.TestCase):
     def test_score_splitter_max_features(self):
         X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
         results = [
-            0.9866666666666667,
-            0.9866666666666667,
+            0.6466666666666666,
+            0.6466666666666666,
             0.9866666666666667,
             0.9866666666666667,
         ]
