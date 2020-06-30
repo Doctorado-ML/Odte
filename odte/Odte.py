@@ -192,10 +192,12 @@ class Odte(BaseEnsemble, ClassifierMixin):
         # Input validation
         X = check_array(X)
         if self.n_features_ != X.shape[1]:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is {0} and "
-                             "input n_features is {1}."
-                             "".format(self.n_features_, X.shape[1]))
+            raise ValueError(
+                "Number of features of the model must "
+                "match the input. Model n_features is {0} and "
+                "input n_features is {1}."
+                "".format(self.n_features_, X.shape[1])
+            )
         for tree, features in zip(self.estimators_, self.subspaces_):
             n_samples = X.shape[0]
             result = np.zeros((n_samples, self.n_classes_))
