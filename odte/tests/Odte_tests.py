@@ -39,13 +39,13 @@ class Odte_test(unittest.TestCase):
 
     def test_initialize_max_feature(self):
         expected_values = [
-            [0, 4, 10, 11],
-            [0, 2, 3, 5, 14, 15],
+            [0, 5, 6, 15],
+            [0, 2, 3, 9, 11, 14],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            [0, 4, 10, 11],
-            [0, 4, 10, 11],
-            [0, 4, 10, 11],
+            [0, 5, 6, 15],
+            [0, 5, 6, 15],
+            [0, 5, 6, 15],
         ]
         X, y = load_dataset(
             random_state=self._random_state, n_features=16, n_samples=10
@@ -91,7 +91,7 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
-        expected = [1, 1, 1, 1]
+        expected = [0, 1, 1, 1]
         tclf = Odte(random_state=self._random_state, n_estimators=10,)
         tclf.set_params(
             **dict(
@@ -116,7 +116,7 @@ class Odte_test(unittest.TestCase):
 
     def test_score(self):
         X, y = load_dataset(self._random_state)
-        expected = 0.948
+        expected = 0.9526666666666667
         tclf = Odte(
             random_state=self._random_state,
             max_features=None,
@@ -128,10 +128,10 @@ class Odte_test(unittest.TestCase):
     def test_score_splitter_max_features(self):
         X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
         results = [
-            0.6466666666666666,
-            0.6466666666666666,
-            0.9866666666666667,
-            0.9866666666666667,
+            1.0,
+            1.0,
+            0.9933333333333333,
+            0.9933333333333333,
         ]
         for max_features in ["auto", None]:
             for splitter in ["best", "random"]:
