@@ -10,23 +10,22 @@ import random
 import sys
 from typing import Union, Optional, Tuple, List
 from itertools import combinations
-import numpy as np  # type: ignore
-from sklearn.utils.multiclass import (  # type: ignore
-    check_classification_targets,
-)
-from sklearn.base import clone, BaseEstimator, ClassifierMixin  # type: ignore
-from sklearn.ensemble import BaseEnsemble  # type: ignore
-from sklearn.utils.validation import (  # type: ignore
+import numpy as np
+from sklearn.utils.multiclass import check_classification_targets
+from sklearn.base import clone, BaseEstimator, ClassifierMixin
+from sklearn.ensemble import BaseEnsemble
+from sklearn.utils.validation import (
     check_is_fitted,
     _check_sample_weight,
 )
-
-from stree import Stree  # type: ignore
+from joblib import Parallel, delayed
+from stree import Stree
 
 
 class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
     def __init__(
         self,
+        n_jobs: int = 1,
         base_estimator: BaseEstimator = None,
         random_state: int = 0,
         max_features: Optional[Union[str, int, float]] = None,
@@ -41,6 +40,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         super().__init__(
             base_estimator=base_estimator, n_estimators=n_estimators,
         )
+        self.n_jobs = n_jobs
         self.n_estimators = n_estimators
         self.random_state = random_state
         self.max_features = max_features
@@ -51,14 +51,6 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             self.random_state = random.randint(0, sys.maxint)
             return np.random.mtrand._rand
         return np.random.RandomState(self.random_state)
-
-    @staticmethod
-    def _initialize_sample_weight(
-        sample_weight: np.array, n_samples: int
-    ) -> np.array:
-        if sample_weight is None:
-            return np.ones((n_samples,), dtype=np.float64)
-        return sample_weight.copy()
 
     def _validate_estimator(self) -> None:
         """Check the estimator and set the base_estimator_ attribute."""
@@ -77,6 +69,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             )
         check_classification_targets(y)
         X, y = self._validate_data(X, y)
+        # if weights is None return np.ones
         sample_weight = _check_sample_weight(
             sample_weight, X, dtype=np.float64
         )
@@ -90,35 +83,60 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         self.n_classes_: int = self.classes_.shape[0]
         self.estimators_: List[BaseEstimator] = []
         self.subspaces_: List[Tuple[int, ...]] = []
-        self._train(X, y, sample_weight)
+        result = self._train(X, y, sample_weight)
+        self.estimators_, self.subspaces_ = tuple(  # type: ignore
+            zip(*result)
+        )
         return self
 
-    def _train(
-        self, X: np.array, y: np.array, sample_weight: np.array
-    ) -> None:
-        random_box = self._initialize_random()
-        random_seed = self.random_state
+    @staticmethod
+    def _parallel_build_tree(
+        base_estimator_: Stree,
+        X: np.array,
+        y: np.array,
+        weights: np.array,
+        random_box: np.random.mtrand.RandomState,
+        random_seed: int,
+        boot_samples: int,
+        max_features: int,
+    ) -> Tuple[BaseEstimator, Tuple[int, ...]]:
+        clf = clone(base_estimator_)
+        clf.set_params(random_state=random_seed)
         n_samples = X.shape[0]
-        weights = self._initialize_sample_weight(sample_weight, n_samples)
+        # bootstrap
+        indices = random_box.randint(0, n_samples, boot_samples)
+        # update weights with the chosen samples
+        weights_update = np.bincount(indices, minlength=n_samples)
+        current_weights = weights * weights_update
+        # random subspace
+        features = Odte._get_random_subspace(X, y, max_features)
+        # train the classifier
+        bootstrap = X[indices, :]
+        clf.fit(bootstrap[:, features], y[indices], current_weights[indices])
+        return (clf, features)
+
+    def _train(
+        self, X: np.array, y: np.array, weights: np.array
+    ) -> Tuple[List[BaseEstimator], List[Tuple[int, ...]]]:
+        random_box = self._initialize_random()
+        n_samples = X.shape[0]
         boot_samples = self._get_bootstrap_n_samples(n_samples)
-        for _ in range(self.n_estimators):
-            # Build clf
-            clf = clone(self.base_estimator_)
-            clf.random_state = random_seed
-            random_seed += 1
-            self.estimators_.append(clf)
-            # bootstrap
-            indices = random_box.randint(0, n_samples, boot_samples)
-            # update weights with the chosen samples
-            weights_update = np.bincount(indices, minlength=n_samples)
-            features = self._get_random_subspace(X, y)
-            self.subspaces_.append(features)
-            current_weights = weights * weights_update
-            # train the classifier
-            bootstrap = X[indices, :]
-            clf.fit(
-                bootstrap[:, features], y[indices], current_weights[indices]
+        clf = clone(self.base_estimator_)
+        return Parallel(n_jobs=self.n_jobs, prefer="threads")(  # type: ignore
+            delayed(Odte._parallel_build_tree)(
+                clf,
+                X,
+                y,
+                weights,
+                random_box,
+                random_seed,
+                boot_samples,
+                self.max_features_,
             )
+            for random_seed in range(
+                self.random_state, self.random_state + self.n_estimators
+            )
+        )
 
     def _get_bootstrap_n_samples(self, n_samples: int) -> int:
         if self.max_samples is None:
@@ -171,11 +189,12 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
                 )
         return max_features
 
+    @staticmethod
     def _get_random_subspace(
-        self, dataset: np.array, labels: np.array
+        dataset: np.array, labels: np.array, max_features: int
     ) -> Tuple[int, ...]:
         features = range(dataset.shape[1])
-        features_sets = list(combinations(features, self.max_features_))
+        features_sets = list(combinations(features, max_features))
         if len(features_sets) > 1:
             index = random.randint(0, len(features_sets) - 1)
             return features_sets[index]

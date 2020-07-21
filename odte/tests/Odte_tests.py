@@ -1,5 +1,6 @@
+# type: ignore
 import unittest
-import numpy as np
+import os
 
 import warnings
 from sklearn.exceptions import ConvergenceWarning
@@ -27,16 +28,6 @@ class Odte_test(unittest.TestCase):
             computed = tclf._get_bootstrap_n_samples(1500)
             self.assertEqual(expected, computed)
 
-    def test_initialize_sample_weight(self):
-        m = 5
-        ones = np.ones(m,)
-        weights = np.random.rand(m,)
-        expected_values = [(None, ones), (weights, weights)]
-        for value, expected in expected_values:
-            tclf = Odte()
-            computed = tclf._initialize_sample_weight(value, m)
-            self.assertListEqual(expected.tolist(), computed.tolist())
-
     def test_initialize_max_feature(self):
         expected_values = [
             [0, 5, 6, 15],
@@ -55,7 +46,7 @@ class Odte_test(unittest.TestCase):
                 random_state=self._random_state, max_features=max_features
             )
             tclf.fit(X, y)
-            computed = tclf._get_random_subspace(X, y)
+            computed = tclf._get_random_subspace(X, y, tclf.max_features_)
             expected = expected_values.pop(0)
             self.assertListEqual(expected, list(computed))
 
@@ -88,11 +79,14 @@ class Odte_test(unittest.TestCase):
                 tclf.fit(*load_dataset(self._random_state))
 
     def test_simple_predict(self):
+        os.environ["PYTHONWARNINGS"] = "ignore"
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
         expected = [0, 1, 1, 1]
-        tclf = Odte(random_state=self._random_state, n_estimators=10,)
+        tclf = Odte(
+            random_state=self._random_state, n_estimators=10, n_jobs=-1
+        )
         tclf.set_params(
             **dict(
                 base_estimator__kernel="rbf",
@@ -147,6 +141,7 @@ class Odte_test(unittest.TestCase):
 
     @staticmethod
     def test_is_a_sklearn_classifier():
+        os.environ["PYTHONWARNINGS"] = "ignore"
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         from sklearn.utils.estimator_checks import check_estimator
