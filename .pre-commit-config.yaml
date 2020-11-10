@@ -5,7 +5,7 @@ repos:
     - id: black
       language_version: python3.8
 -   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 3.8.3
     hooks:
     - id: flake8
 -   repo: https://github.com/pre-commit/mirrors-mypy
@@ -17,6 +17,11 @@ repos:
     hooks:
       - id: unittest
         name: unittest
-        entry: python -m unittest discover 
+        entry: python -m coverage run -m unittest discover
+        language: system
+        pass_filenames: false
+      - id: coverage
+        name: coverage
+        entry: python -m coverage report -m --fail-under=100
         language: system
         pass_filenames: false

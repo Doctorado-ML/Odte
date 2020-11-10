@@ -57,7 +57,7 @@ class Odte_test(unittest.TestCase):
         computed = box.randint(0, 1000, 3)
         self.assertListEqual(expected, computed.tolist())
         # test None
-        tclf = Odte()
+        tclf = Odte(random_state=None)
         box = tclf._initialize_random()
         computed = box.randint(101, 1000, 3)
         for value in computed.tolist():
@@ -83,7 +83,7 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
-        expected = [0, 1, 1, 1]
+        expected = [0, 1, 1, 2]
         tclf = Odte(
             random_state=self._random_state, n_estimators=10, n_jobs=-1
         )
@@ -102,9 +102,15 @@ class Odte_test(unittest.TestCase):
         X, y = load_dataset(self._random_state)
         expected = y
         tclf = Odte(
-            random_state=self._random_state, max_features=1.0, max_samples=0.1,
+            random_state=self._random_state,
+            max_features=1.0,
+            max_samples=0.1,
         )
-        tclf.set_params(**dict(base_estimator__kernel="linear",))
+        tclf.set_params(
+            **dict(
+                base_estimator__kernel="linear",
+            )
+        )
         computed = tclf.fit(X, y).predict(X)
         self.assertListEqual(expected[:27].tolist(), computed[:27].tolist())
 
@@ -134,7 +140,11 @@ class Odte_test(unittest.TestCase):
                     max_features=max_features,
                     n_estimators=10,
                 )
-                tclf.set_params(**dict(base_estimator__splitter=splitter,))
+                tclf.set_params(
+                    **dict(
+                        base_estimator__splitter=splitter,
+                    )
+                )
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
                 self.assertAlmostEqual(expected, computed)

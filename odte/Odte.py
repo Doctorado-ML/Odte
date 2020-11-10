@@ -25,6 +25,7 @@ from stree import Stree
 class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
     def __init__(
         self,
+        # n_jobs = -1 to use all available cores
         n_jobs: int = 1,
         base_estimator: BaseEstimator = None,
         random_state: int = 0,
@@ -38,7 +39,8 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             else base_estimator
         )
         super().__init__(
-            base_estimator=base_estimator, n_estimators=n_estimators,
+            base_estimator=base_estimator,
+            n_estimators=n_estimators,
         )
         self.n_jobs = n_jobs
         self.n_estimators = n_estimators
@@ -48,7 +50,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
 
     def _initialize_random(self) -> np.random.mtrand.RandomState:
         if self.random_state is None:
-            self.random_state = random.randint(0, sys.maxint)
+            self.random_state = random.randint(0, sys.maxsize)
             return np.random.mtrand._rand
         return np.random.RandomState(self.random_state)
 
@@ -84,9 +86,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         self.estimators_: List[BaseEstimator] = []
         self.subspaces_: List[Tuple[int, ...]] = []
         result = self._train(X, y, sample_weight)
-        self.estimators_, self.subspaces_ = tuple(  # type: ignore
-            zip(*result)
-        )
+        self.estimators_, self.subspaces_ = tuple(zip(*result))  # type: ignore
         return self
 
     @staticmethod
