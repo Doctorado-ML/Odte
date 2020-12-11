@@ -1,7 +1,7 @@
 # type: ignore
 import unittest
 import os
-
+import random
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 
@@ -30,13 +30,13 @@ class Odte_test(unittest.TestCase):
 
     def test_initialize_max_feature(self):
         expected_values = [
-            [0, 5, 6, 15],
-            [0, 2, 3, 9, 11, 14],
+            [6, 7, 8, 15],
+            [3, 4, 5, 6, 10, 13],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            [0, 5, 6, 15],
-            [0, 5, 6, 15],
-            [0, 5, 6, 15],
+            [6, 7, 8, 15],
+            [6, 7, 8, 15],
+            [6, 7, 8, 15],
         ]
         X, y = load_dataset(
             random_state=self._random_state, n_features=16, n_samples=10
@@ -49,6 +49,7 @@ class Odte_test(unittest.TestCase):
             computed = tclf._get_random_subspace(X, y, tclf.max_features_)
             expected = expected_values.pop(0)
             self.assertListEqual(expected, list(computed))
+            # print(f"{list(computed)},")
 
     def test_initialize_random(self):
         expected = [37, 235, 908]
@@ -128,11 +129,12 @@ class Odte_test(unittest.TestCase):
     def test_score_splitter_max_features(self):
         X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
         results = [
-            1.0,
-            1.0,
+            0.86,
+            0.8933333333333333,
             0.9933333333333333,
             0.9933333333333333,
         ]
+        random.seed(self._random_state)
         for max_features in ["auto", None]:
             for splitter in ["best", "random"]:
                 tclf = Odte(
@@ -143,11 +145,21 @@ class Odte_test(unittest.TestCase):
                 tclf.set_params(
                     **dict(
                         base_estimator__splitter=splitter,
+                        base_estimator__random_state=self._random_state,
                     )
                 )
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
+                # print(computed, splitter, max_features)
                 self.assertAlmostEqual(expected, computed)
+
+    def test_generate_subspaces(self):
+        features = 250
+        for max_features in range(2, features):
+            num = len(Odte._generate_spaces(features, max_features))
+            self.assertEqual(5, num)
+        self.assertEqual(3, len(Odte._generate_spaces(3, 2)))
+        self.assertEqual(4, len(Odte._generate_spaces(4, 3)))
 
     @staticmethod
     def test_is_a_sklearn_classifier():

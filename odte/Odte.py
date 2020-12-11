@@ -8,8 +8,8 @@ Build a forest of oblique trees based on STree
 from __future__ import annotations
 import random
 import sys
+from math import factorial
 from typing import Union, Optional, Tuple, List
-from itertools import combinations
 import numpy as np
 from sklearn.utils.multiclass import check_classification_targets
 from sklearn.base import clone, BaseEstimator, ClassifierMixin
@@ -190,11 +190,27 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         return max_features
 
     @staticmethod
+    def _generate_spaces(features: int, max_features: int) -> list:
+        comb = set()
+        # Generate at most 5 combinations
+        if max_features == features:
+            set_length = 1
+        else:
+            number = factorial(features) / (
+                factorial(max_features) * factorial(features - max_features)
+            )
+            set_length = min(5, number)
+        while len(comb) < set_length:
+            comb.add(
+                tuple(sorted(random.sample(range(features), max_features)))
+            )
+        return list(comb)
+
+    @staticmethod
     def _get_random_subspace(
         dataset: np.array, labels: np.array, max_features: int
     ) -> Tuple[int, ...]:
-        features = range(dataset.shape[1])
-        features_sets = list(combinations(features, max_features))
+        features_sets = Odte._generate_spaces(dataset.shape[1], max_features)
         if len(features_sets) > 1:
             index = random.randint(0, len(features_sets) - 1)
             return features_sets[index]
