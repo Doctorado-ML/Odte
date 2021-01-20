@@ -1,18 +1,27 @@
 repos:
   - repo: https://github.com/ambv/black
-    rev: stable
+    rev: 20.8b1
     hooks:
       - id: black
+        exclude: ".virtual_documents"
         language_version: python3.8
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.8.4
     hooks:
       - id: flake8
-  # -   repo: https://github.com/pre-commit/mirrors-mypy
-  #     rev: ''  # Use the sha / tag you want to point at
-  #     hooks:
-  #     -   id: mypy
-  #         args: [--strict, --ignore-missing-imports]
+        exclude: ".virtual_documents"
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "v0.790" # Use the sha / tag you want to point at
+  #   hooks:
+  #     - id: mypy
+  #       # args: [--strict, --ignore-missing-imports]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-ast
+      - id: trailing-whitespace
   - repo: local
     hooks:
       - id: unittest
