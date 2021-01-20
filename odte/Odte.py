@@ -33,15 +33,11 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         max_samples: Optional[Union[int, float]] = None,
         n_estimators: int = 100,
     ):
-        base_estimator = (
-            Stree(random_state=random_state)
-            if base_estimator is None
-            else base_estimator
-        )
         super().__init__(
             base_estimator=base_estimator,
             n_estimators=n_estimators,
         )
+        self.base_estimator = base_estimator
         self.n_jobs = n_jobs
         self.n_estimators = n_estimators
         self.random_state = random_state

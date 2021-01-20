@@ -1,6 +1,6 @@
 import setuptools
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Ricardo Montañana Gómez"
 
 
@@ -25,12 +25,12 @@ setuptools.setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Natural Language :: English",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Intended Audience :: Science/Research",
     ],
-    install_requires=["scikit-learn>=0.23.0", "numpy", "ipympl", "stree"],
+    install_requires=["scikit-learn", "numpy", "ipympl", "stree"],
     test_suite="odte.tests",
     zip_safe=False,
 )

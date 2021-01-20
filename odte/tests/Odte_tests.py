@@ -6,6 +6,7 @@ import warnings
 from sklearn.exceptions import ConvergenceWarning
 
 from odte import Odte
+from stree import Stree
 from .utils import load_dataset
 
 
@@ -86,7 +87,10 @@ class Odte_test(unittest.TestCase):
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
         expected = [0, 1, 1, 2]
         tclf = Odte(
-            random_state=self._random_state, n_estimators=10, n_jobs=-1
+            base_estimator=Stree(),
+            random_state=self._random_state,
+            n_estimators=10,
+            n_jobs=-1,
         )
         tclf.set_params(
             **dict(
@@ -103,6 +107,7 @@ class Odte_test(unittest.TestCase):
         X, y = load_dataset(self._random_state)
         expected = y
         tclf = Odte(
+            base_estimator=Stree(),
             random_state=self._random_state,
             max_features=1.0,
             max_samples=0.1,
@@ -138,6 +143,7 @@ class Odte_test(unittest.TestCase):
         for max_features in ["auto", None]:
             for splitter in ["best", "random"]:
                 tclf = Odte(
+                    base_estimator=Stree(),
                     random_state=self._random_state,
                     max_features=max_features,
                     n_estimators=10,
