@@ -1,5 +1,1 @@
-numpy
-scikit-learn
-pandas
-ipympl
-git+https://github.com/doctorado-ml/stree
+stree

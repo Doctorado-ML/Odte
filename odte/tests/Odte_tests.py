@@ -31,13 +31,13 @@ class Odte_test(unittest.TestCase):
 
     def test_initialize_max_feature(self):
         expected_values = [
-            [6, 7, 8, 15],
-            [3, 4, 5, 6, 10, 13],
+            [4, 7, 12, 14],
+            [2, 4, 6, 7, 12, 14],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            [6, 7, 8, 15],
-            [6, 7, 8, 15],
-            [6, 7, 8, 15],
+            [4, 7, 12, 14],
+            [4, 7, 12, 14],
+            [4, 7, 12, 14],
         ]
         X, y = load_dataset(
             random_state=self._random_state, n_features=16, n_samples=10
@@ -122,7 +122,7 @@ class Odte_test(unittest.TestCase):
 
     def test_score(self):
         X, y = load_dataset(self._random_state)
-        expected = 0.9526666666666667
+        expected = 0.9513333333333334
         tclf = Odte(
             random_state=self._random_state,
             max_features=None,
@@ -132,24 +132,40 @@ class Odte_test(unittest.TestCase):
         self.assertAlmostEqual(expected, computed)
 
     def test_score_splitter_max_features(self):
-        X, y = load_dataset(self._random_state, n_features=12, n_samples=150)
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
         results = [
-            0.86,
-            0.8933333333333333,
-            0.9933333333333333,
-            0.9933333333333333,
+            0.948,
+            0.924,
+            0.926,
+            0.94,
+            0.932,
+            0.936,
+            0.962,
+            0.962,
+            0.962,
+            0.962,
+            0.962,
+            0.962,
+            0.962,
         ]
         random.seed(self._random_state)
         for max_features in ["auto", None]:
-            for splitter in ["best", "random"]:
+            for splitter in [
+                "best",
+                "random",
+                "trandom",
+                "mutual",
+                "iwss",
+                "cfs",
+            ]:
                 tclf = Odte(
                     base_estimator=Stree(),
                     random_state=self._random_state,
-                    max_features=max_features,
-                    n_estimators=10,
+                    n_estimators=3,
                 )
                 tclf.set_params(
                     **dict(
+                        base_estimator__max_features=max_features,
                         base_estimator__splitter=splitter,
                         base_estimator__random_state=self._random_state,
                     )

@@ -1,25 +1,35 @@
 import setuptools
 
-__version__ = "0.2.0"
-__author__ = "Ricardo Montañana Gómez"
-
 
 def readme():
     with open("README.md") as f:
         return f.read()
 
 
+def get_data(field):
+    item = ""
+    with open("stree/__init__.py") as f:
+        for line in f.readlines():
+            if line.startswith(f"__{field}__"):
+                delim = '"' if '"' in line else "'"
+                item = line.split(delim)[1]
+                break
+        else:
+            raise RuntimeError(f"Unable to find {field} string.")
+    return item
+
+
 setuptools.setup(
     name="Odte",
-    version=__version__,
-    license="MIT License",
+    version=get_data("version"),
+    license=get_data("license"),
     description="Oblique decision tree Ensemble",
     long_description=readme(),
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    url="https://github.com/doctorado-ml/stree",
-    author=__author__,
-    author_email="ricardo.montanana@alu.uclm.es",
+    url="https://github.com/doctorado-ml/odte",
+    author=get_data("author"),
+    author_email=get_data("author_email"),
     keywords="scikit-learn oblique-classifier oblique-decision-tree decision-\
     tree ensemble svm svc",
     classifiers=[
@@ -30,7 +40,7 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Intended Audience :: Science/Research",
     ],
-    install_requires=["scikit-learn", "numpy", "ipympl", "stree"],
+    install_requires=["stree"],
     test_suite="odte.tests",
     zip_safe=False,
 )
