@@ -1,1 +1,1 @@
-stree
+stree>1.2.2
