@@ -8,7 +8,7 @@ def readme():
 
 def get_data(field):
     item = ""
-    with open("stree/__init__.py") as f:
+    with open("odte/__init__.py") as f:
         for line in f.readlines():
             if line.startswith(f"__{field}__"):
                 delim = '"' if '"' in line else "'"
