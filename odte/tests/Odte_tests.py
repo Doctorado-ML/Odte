@@ -3,7 +3,7 @@ import unittest
 import os
 import random
 import warnings
-from sklearn.exceptions import ConvergenceWarning
+from sklearn.exceptions import ConvergenceWarning, NotFittedError
 
 from odte import Odte
 from stree import Stree
@@ -191,3 +191,27 @@ class Odte_test(unittest.TestCase):
         from sklearn.utils.estimator_checks import check_estimator
 
         check_estimator(Odte())
+
+    def test_nodes_leaves_not_fitted(self):
+        tclf = Odte(
+            base_estimator=Stree(),
+            random_state=self._random_state,
+            n_estimators=3,
+        )
+        with self.assertRaises(NotFittedError):
+            tclf.nodes_leaves()
+
+    def test_nodes_leaves_depth(self):
+        tclf = Odte(
+            base_estimator=Stree(),
+            random_state=self._random_state,
+            n_estimators=3,
+        )
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
+        tclf.fit(X, y)
+        self.assertAlmostEqual(6.0, tclf.depth_)
+        self.assertAlmostEqual(9.333333333333334, tclf.leaves_)
+        self.assertAlmostEqual(17.666666666666668, tclf.nodes_)
+        nodes, leaves = tclf.nodes_leaves()
+        self.assertAlmostEqual(9.333333333333334, leaves)
+        self.assertAlmostEqual(17.666666666666668, nodes)

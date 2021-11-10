@@ -83,7 +83,20 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         self.subspaces_: List[Tuple[int, ...]] = []
         result = self._train(X, y, sample_weight)
         self.estimators_, self.subspaces_ = tuple(zip(*result))  # type: ignore
+        self._compute_metrics()
         return self
+
+    def _compute_metrics(self) -> None:
+        tdepth = tnodes = tleaves = 0
+        for estimator in self.estimators_:
+            nodes, leaves = estimator.nodes_leaves()
+            depth = estimator.depth_
+            tdepth += depth
+            tnodes += nodes
+            tleaves += leaves
+        self.depth_ = tdepth / self.n_estimators
+        self.leaves_ = tleaves / self.n_estimators
+        self.nodes_ = tnodes / self.n_estimators
 
     @staticmethod
     def _parallel_build_tree(
@@ -228,3 +241,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             for i in range(n_samples):
                 result[i, predictions[i]] += 1
         return result / self.n_estimators
+
+    def nodes_leaves(self) -> list(float, float):
+        check_is_fitted(self, "estimators_")
+        return self.nodes_, self.leaves_
