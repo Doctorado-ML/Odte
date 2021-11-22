@@ -11,9 +11,9 @@ deps:  ## Install dependencies
 	pip install -r requirements.txt
 
 lint:  ## Lint and static-check
-	black stree
-	flake8 stree
-	mypy stree
+	black odte
+	flake8 odte
+	mypy odte --exclude tests
 
 push:  ## Push code with tags
 	git push && git push --tags

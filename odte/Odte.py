@@ -2,27 +2,28 @@
 __author__ = "Ricardo Montañana Gómez"
 __copyright__ = "Copyright 2020, Ricardo Montañana Gómez"
 __license__ = "MIT"
-__version__ = "0.1"
 Build a forest of oblique trees based on STree
 """
 from __future__ import annotations
 import random
 import sys
 from math import factorial
-from typing import Union, Optional, Tuple, List
+from typing import Union, Optional, Tuple, List, Set
 import numpy as np
-from sklearn.utils.multiclass import check_classification_targets
-from sklearn.base import clone, BaseEstimator, ClassifierMixin
-from sklearn.ensemble import BaseEnsemble
-from sklearn.utils.validation import (
+from sklearn.utils.multiclass import (  # type: ignore
+    check_classification_targets,
+)
+from sklearn.base import clone, BaseEstimator, ClassifierMixin  # type: ignore
+from sklearn.ensemble import BaseEnsemble  # type: ignore
+from sklearn.utils.validation import (  # type: ignore
     check_is_fitted,
     _check_sample_weight,
 )
-from joblib import Parallel, delayed
-from stree import Stree
+from joblib import Parallel, delayed  # type: ignore
+from stree import Stree  # type: ignore
 
 
-class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
+class Odte(BaseEnsemble, ClassifierMixin):
     def __init__(
         self,
         # n_jobs = -1 to use all available cores
@@ -57,7 +58,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         )
 
     def fit(
-        self, X: np.array, y: np.array, sample_weight: np.array = None
+        self, X: np.ndarray, y: np.ndarray, sample_weight: np.ndarray = None
     ) -> Odte:
         # Check parameters are Ok.
         if self.n_estimators < 3:
@@ -67,8 +68,8 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             )
         check_classification_targets(y)
         X, y = self._validate_data(X, y)
-        # if weights is None return np.ones
-        sample_weight = _check_sample_weight(
+        # if sample_weight is None return np.ones
+        sample_weights = _check_sample_weight(
             sample_weight, X, dtype=np.float64
         )
         check_classification_targets(y)
@@ -81,7 +82,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         self.n_classes_: int = self.classes_.shape[0]
         self.estimators_: List[BaseEstimator] = []
         self.subspaces_: List[Tuple[int, ...]] = []
-        result = self._train(X, y, sample_weight)
+        result = self._train(X, y, sample_weights)
         self.estimators_, self.subspaces_ = tuple(zip(*result))  # type: ignore
         self._compute_metrics()
         return self
@@ -101,9 +102,9 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
     @staticmethod
     def _parallel_build_tree(
         base_estimator_: Stree,
-        X: np.array,
-        y: np.array,
-        weights: np.array,
+        X: np.ndarray,
+        y: np.ndarray,
+        weights: np.ndarray,
         random_box: np.random.mtrand.RandomState,
         random_seed: int,
         boot_samples: int,
@@ -125,7 +126,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         return (clf, features)
 
     def _train(
-        self, X: np.array, y: np.array, weights: np.array
+        self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
     ) -> Tuple[List[BaseEstimator], List[Tuple[int, ...]]]:
         random_box = self._initialize_random()
         n_samples = X.shape[0]
@@ -200,7 +201,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
 
     @staticmethod
     def _generate_spaces(features: int, max_features: int) -> list:
-        comb = set()
+        comb: Set[Tuple[int, ...]] = set()
         # Generate at most 5 combinations
         if max_features == features:
             set_length = 1
@@ -208,7 +209,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
             number = factorial(features) / (
                 factorial(max_features) * factorial(features - max_features)
             )
-            set_length = min(5, number)
+            set_length = min(5, int(number))
         while len(comb) < set_length:
             comb.add(
                 tuple(sorted(random.sample(range(features), max_features)))
@@ -217,7 +218,7 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
 
     @staticmethod
     def _get_random_subspace(
-        dataset: np.array, labels: np.array, max_features: int
+        dataset: np.ndarray, labels: np.ndarray, max_features: int
     ) -> Tuple[int, ...]:
         features_sets = Odte._generate_spaces(dataset.shape[1], max_features)
         if len(features_sets) > 1:
@@ -226,11 +227,11 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
         else:
             return features_sets[0]
 
-    def predict(self, X: np.array) -> np.array:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         proba = self.predict_proba(X)
         return self.classes_[np.argmax(proba, axis=1)]
 
-    def predict_proba(self, X: np.array) -> np.array:
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
         check_is_fitted(self, "estimators_")
         # Input validation
         X = self._validate_data(X, reset=False)
@@ -242,6 +243,6 @@ class Odte(BaseEnsemble, ClassifierMixin):  # type: ignore
                 result[i, predictions[i]] += 1
         return result / self.n_estimators
 
-    def nodes_leaves(self) -> list(float, float):
+    def nodes_leaves(self) -> Tuple[float, float]:
         check_is_fitted(self, "estimators_")
         return self.nodes_, self.leaves_
