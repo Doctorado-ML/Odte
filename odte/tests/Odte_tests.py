@@ -3,8 +3,9 @@ import unittest
 import os
 import random
 import warnings
+import json
 from sklearn.exceptions import ConvergenceWarning, NotFittedError
-
+from sklearn.svm import SVC
 from odte import Odte
 from stree import Stree
 from .utils import load_dataset
@@ -215,3 +216,39 @@ class Odte_test(unittest.TestCase):
         nodes, leaves = tclf.nodes_leaves()
         self.assertAlmostEqual(9.333333333333334, leaves)
         self.assertAlmostEqual(17.666666666666668, nodes)
+
+    def test_nodes_leaves_SVC(self):
+        tclf = Odte(
+            base_estimator=SVC(),
+            random_state=self._random_state,
+            n_estimators=3,
+        )
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
+        tclf.fit(X, y)
+        self.assertAlmostEqual(0.0, tclf.leaves_)
+        self.assertAlmostEqual(0.0, tclf.nodes_)
+        nodes, leaves = tclf.nodes_leaves()
+        self.assertAlmostEqual(0.0, leaves)
+        self.assertAlmostEqual(0.0, nodes)
+
+    def test_base_estimator_hyperparams(self):
+        data = [
+            (Stree(), {"max_features": 7, "max_depth": 2}),
+            (SVC(), {"kernel": "linear", "cache_size": 100}),
+        ]
+        for clf, hyperparams in data:
+            hyperparams_ = json.dumps(hyperparams)
+            tclf = Odte(
+                base_estimator=clf,
+                random_state=self._random_state,
+                n_estimators=3,
+                be_hyperparams=hyperparams_,
+            )
+            self.assertEqual(hyperparams_, tclf.be_hyperparams)
+            X, y = load_dataset(
+                self._random_state, n_features=16, n_samples=500
+            )
+            tclf.fit(X, y)
+            for estimator in tclf.estimators_:
+                for key, value in hyperparams.items():
+                    self.assertEqual(value, estimator.get_params()[key])

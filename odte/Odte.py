@@ -2,11 +2,13 @@
 __author__ = "Ricardo Montañana Gómez"
 __copyright__ = "Copyright 2020, Ricardo Montañana Gómez"
 __license__ = "MIT"
-Build a forest of oblique trees based on STree
+Build a forest of oblique trees based on STree, admits any base classifier
+as well
 """
 from __future__ import annotations
 import random
 import sys
+import json
 from math import factorial
 from typing import Union, Optional, Tuple, List, Set
 import numpy as np
@@ -33,6 +35,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         max_features: Optional[Union[str, int, float]] = None,
         max_samples: Optional[Union[int, float]] = None,
         n_estimators: int = 100,
+        be_hyperparams: str = "{}",
     ):
         super().__init__(
             base_estimator=base_estimator,
@@ -44,6 +47,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         self.random_state = random_state
         self.max_features = max_features
         self.max_samples = max_samples  # size of bootstrap
+        self.be_hyperparams = be_hyperparams
 
     def _initialize_random(self) -> np.random.mtrand.RandomState:
         if self.random_state is None:
@@ -88,13 +92,14 @@ class Odte(BaseEnsemble, ClassifierMixin):
         return self
 
     def _compute_metrics(self) -> None:
-        tdepth = tnodes = tleaves = 0
+        tdepth = tnodes = tleaves = 0.0
         for estimator in self.estimators_:
-            nodes, leaves = estimator.nodes_leaves()
-            depth = estimator.depth_
-            tdepth += depth
-            tnodes += nodes
-            tleaves += leaves
+            if hasattr(estimator, "nodes_leaves"):
+                nodes, leaves = estimator.nodes_leaves()
+                depth = estimator.depth_
+                tdepth += depth
+                tnodes += nodes
+                tleaves += leaves
         self.depth_ = tdepth / self.n_estimators
         self.leaves_ = tleaves / self.n_estimators
         self.nodes_ = tnodes / self.n_estimators
@@ -109,9 +114,12 @@ class Odte(BaseEnsemble, ClassifierMixin):
         random_seed: int,
         boot_samples: int,
         max_features: int,
+        hyperparams: str,
     ) -> Tuple[BaseEstimator, Tuple[int, ...]]:
         clf = clone(base_estimator_)
-        clf.set_params(random_state=random_seed)
+        hyperparams_ = json.loads(hyperparams)
+        hyperparams_.update(dict(random_state=random_seed))
+        clf.set_params(**hyperparams_)
         n_samples = X.shape[0]
         # bootstrap
         indices = random_box.randint(0, n_samples, boot_samples)
@@ -142,6 +150,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
                 random_seed,
                 boot_samples,
                 self.max_features_,
+                self.be_hyperparams,
             )
             for random_seed in range(
                 self.random_state, self.random_state + self.n_estimators
