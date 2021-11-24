@@ -88,13 +88,14 @@ class Odte(BaseEnsemble, ClassifierMixin):
         return self
 
     def _compute_metrics(self) -> None:
-        tdepth = tnodes = tleaves = 0
+        tdepth = tnodes = tleaves = 0.0
         for estimator in self.estimators_:
-            nodes, leaves = estimator.nodes_leaves()
-            depth = estimator.depth_
-            tdepth += depth
-            tnodes += nodes
-            tleaves += leaves
+            if hasattr(estimator, "nodes_leaves"):
+                nodes, leaves = estimator.nodes_leaves()
+                depth = estimator.depth_
+                tdepth += depth
+                tnodes += nodes
+                tleaves += leaves
         self.depth_ = tdepth / self.n_estimators
         self.leaves_ = tleaves / self.n_estimators
         self.nodes_ = tnodes / self.n_estimators
