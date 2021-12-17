@@ -1,4 +1,5 @@
 import setuptools
+import os
 
 
 def readme():
@@ -8,7 +9,8 @@ def readme():
 
 def get_data(field):
     item = ""
-    with open("odte/__init__.py") as f:
+    file_name = "_version.py" if field == "version" else "__init__.py"
+    with open(os.path.join("odte", file_name)) as f:
         for line in f.readlines():
             if line.startswith(f"__{field}__"):
                 delim = '"' if '"' in line else "'"
