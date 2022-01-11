@@ -23,6 +23,7 @@ from sklearn.utils.validation import (  # type: ignore
 )
 from joblib import Parallel, delayed  # type: ignore
 from stree import Stree  # type: ignore
+from ._version import __version__
 
 
 class Odte(BaseEnsemble, ClassifierMixin):
@@ -48,6 +49,10 @@ class Odte(BaseEnsemble, ClassifierMixin):
         self.max_features = max_features
         self.max_samples = max_samples  # size of bootstrap
         self.be_hyperparams = be_hyperparams
+
+    @staticmethod
+    def version() -> str:
+        return __version__
 
     def _initialize_random(self) -> np.random.mtrand.RandomState:
         if self.random_state is None:

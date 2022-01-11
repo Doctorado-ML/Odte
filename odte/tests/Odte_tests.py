@@ -9,6 +9,7 @@ from sklearn.svm import SVC
 from odte import Odte
 from stree import Stree
 from .utils import load_dataset
+from .._version import __version__
 
 
 class Odte_test(unittest.TestCase):
@@ -252,3 +253,7 @@ class Odte_test(unittest.TestCase):
             for estimator in tclf.estimators_:
                 for key, value in hyperparams.items():
                     self.assertEqual(value, estimator.get_params()[key])
+
+    def test_version(self):
+        tclf = Odte()
+        self.assertEqual(__version__, tclf.version())
