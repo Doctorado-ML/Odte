@@ -257,3 +257,15 @@ class Odte_test(unittest.TestCase):
     def test_version(self):
         tclf = Odte()
         self.assertEqual(__version__, tclf.version())
+
+    def test_parallel_score(self):
+        tclf_p = Odte(
+            n_jobs=-1, random_state=self._random_state, n_estimators=30
+        )
+        tclf_s = Odte(
+            n_jobs=1, random_state=self._random_state, n_estimators=30
+        )
+        X, y = load_dataset(self._random_state, n_features=56, n_samples=1500)
+        tclf_p.fit(X, y)
+        tclf_s.fit(X, y)
+        self.assertAlmostEqual(tclf_p.score(X, y), tclf_s.score(X, y))
