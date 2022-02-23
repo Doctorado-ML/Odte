@@ -54,20 +54,6 @@ class Odte_test(unittest.TestCase):
             self.assertListEqual(expected, list(computed))
             # print(f"{list(computed)},")
 
-    def test_initialize_random(self):
-        expected = [37, 235, 908]
-        tclf = Odte(random_state=self._random_state)
-        box = tclf._initialize_random()
-        computed = box.randint(0, 1000, 3)
-        self.assertListEqual(expected, computed.tolist())
-        # test None
-        tclf = Odte(random_state=None)
-        box = tclf._initialize_random()
-        computed = box.randint(101, 1000, 3)
-        for value in computed.tolist():
-            self.assertGreaterEqual(value, 101)
-            self.assertLessEqual(value, 1000)
-
     def test_bogus_max_features(self):
         values = ["duck", -0.1, 0.0]
         for max_features in values:
@@ -124,7 +110,7 @@ class Odte_test(unittest.TestCase):
 
     def test_score(self):
         X, y = load_dataset(self._random_state)
-        expected = 0.9513333333333334
+        expected = 0.9533333333333334
         tclf = Odte(
             random_state=self._random_state,
             max_features=None,
@@ -136,19 +122,18 @@ class Odte_test(unittest.TestCase):
     def test_score_splitter_max_features(self):
         X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
         results = [
-            0.948,
-            0.924,
-            0.926,
-            0.94,
-            0.932,
-            0.936,
-            0.962,
-            0.962,
-            0.962,
-            0.962,
-            0.962,
-            0.962,
-            0.962,
+            0.958,  # best auto
+            0.942,  # random auto
+            0.932,  # trandom auto
+            0.95,  # mutual auto
+            0.944,  # iwss auto
+            0.946,  # cfs auto
+            0.97,  # best None
+            0.97,  # random None
+            0.97,  # trandom None
+            0.97,  # mutual None
+            0.97,  # iwss None
+            0.97,  # cfs None
         ]
         random.seed(self._random_state)
         for max_features in ["auto", None]:
@@ -208,15 +193,32 @@ class Odte_test(unittest.TestCase):
             base_estimator=Stree(),
             random_state=self._random_state,
             n_estimators=3,
+            n_jobs=1,
         )
         X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
         tclf.fit(X, y)
-        self.assertAlmostEqual(6.0, tclf.depth_)
-        self.assertAlmostEqual(9.333333333333334, tclf.leaves_)
-        self.assertAlmostEqual(17.666666666666668, tclf.nodes_)
+        self.assertAlmostEqual(6.333333333333333, tclf.depth_)
+        self.assertAlmostEqual(10.0, tclf.leaves_)
+        self.assertAlmostEqual(19.0, tclf.nodes_)
         nodes, leaves = tclf.nodes_leaves()
-        self.assertAlmostEqual(9.333333333333334, leaves)
-        self.assertAlmostEqual(17.666666666666668, nodes)
+        self.assertAlmostEqual(10.0, leaves)
+        self.assertAlmostEqual(19, nodes)
+
+    def test_nodes_leaves_depth_parallel(self):
+        tclf = Odte(
+            base_estimator=Stree(),
+            random_state=self._random_state,
+            n_estimators=3,
+            n_jobs=-1,
+        )
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
+        tclf.fit(X, y)
+        self.assertAlmostEqual(6.333333333333333, tclf.depth_)
+        self.assertAlmostEqual(10.0, tclf.leaves_)
+        self.assertAlmostEqual(19.0, tclf.nodes_)
+        nodes, leaves = tclf.nodes_leaves()
+        self.assertAlmostEqual(10.0, leaves)
+        self.assertAlmostEqual(19, nodes)
 
     def test_nodes_leaves_SVC(self):
         tclf = Odte(
