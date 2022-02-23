@@ -7,7 +7,6 @@ as well
 """
 from __future__ import annotations
 import random
-import sys
 import json
 from math import factorial
 from typing import Union, Optional, Tuple, List, Set
