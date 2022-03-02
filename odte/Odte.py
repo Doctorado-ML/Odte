@@ -7,7 +7,6 @@ as well
 """
 from __future__ import annotations
 import random
-import sys
 import json
 from math import factorial
 from typing import Union, Optional, Tuple, List, Set
@@ -16,6 +15,7 @@ from sklearn.utils.multiclass import (  # type: ignore
     check_classification_targets,
 )
 from sklearn.base import clone, BaseEstimator, ClassifierMixin  # type: ignore
+from sklearn.utils import check_random_state
 from sklearn.ensemble import BaseEnsemble  # type: ignore
 from sklearn.utils.validation import (  # type: ignore
     check_is_fitted,
@@ -53,12 +53,6 @@ class Odte(BaseEnsemble, ClassifierMixin):
     @staticmethod
     def version() -> str:
         return __version__
-
-    def _initialize_random(self) -> np.random.mtrand.RandomState:
-        if self.random_state is None:
-            self.random_state = random.randint(0, sys.maxsize)
-            return np.random.mtrand._rand
-        return np.random.RandomState(self.random_state)
 
     def _validate_estimator(self) -> None:
         """Check the estimator and set the base_estimator_ attribute."""
@@ -109,13 +103,34 @@ class Odte(BaseEnsemble, ClassifierMixin):
         self.leaves_ = tleaves / self.n_estimators
         self.nodes_ = tnodes / self.n_estimators
 
+    def _train(
+        self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
+    ) -> Tuple[List[BaseEstimator], List[Tuple[int, ...]]]:
+        n_samples = X.shape[0]
+        boot_samples = self._get_bootstrap_n_samples(n_samples)
+        estimator = clone(self.base_estimator_)
+        return Parallel(n_jobs=self.n_jobs, prefer="threads")(  # type: ignore
+            delayed(Odte._parallel_build_tree)(
+                estimator,
+                X,
+                y,
+                weights,
+                random_seed,
+                boot_samples,
+                self.max_features_,
+                self.be_hyperparams,
+            )
+            for random_seed in range(
+                self.random_state, self.random_state + self.n_estimators
+            )
+        )
+
     @staticmethod
     def _parallel_build_tree(
-        base_estimator_: Stree,
+        base_estimator_: BaseEstimator,
         X: np.ndarray,
         y: np.ndarray,
         weights: np.ndarray,
-        random_box: np.random.mtrand.RandomState,
         random_seed: int,
         boot_samples: int,
         max_features: int,
@@ -127,6 +142,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         clf.set_params(**hyperparams_)
         n_samples = X.shape[0]
         # bootstrap
+        random_box = check_random_state(random_seed)
         indices = random_box.randint(0, n_samples, boot_samples)
         # update weights with the chosen samples
         weights_update = np.bincount(indices, minlength=n_samples)
@@ -137,30 +153,6 @@ class Odte(BaseEnsemble, ClassifierMixin):
         bootstrap = X[indices, :]
         clf.fit(bootstrap[:, features], y[indices], current_weights[indices])
         return (clf, features)
-
-    def _train(
-        self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
-    ) -> Tuple[List[BaseEstimator], List[Tuple[int, ...]]]:
-        random_box = self._initialize_random()
-        n_samples = X.shape[0]
-        boot_samples = self._get_bootstrap_n_samples(n_samples)
-        clf = clone(self.base_estimator_)
-        return Parallel(n_jobs=self.n_jobs, prefer="threads")(  # type: ignore
-            delayed(Odte._parallel_build_tree)(
-                clf,
-                X,
-                y,
-                weights,
-                random_box,
-                random_seed,
-                boot_samples,
-                self.max_features_,
-                self.be_hyperparams,
-            )
-            for random_seed in range(
-                self.random_state, self.random_state + self.n_estimators
-            )
-        )
 
     def _get_bootstrap_n_samples(self, n_samples: int) -> int:
         if self.max_samples is None:
