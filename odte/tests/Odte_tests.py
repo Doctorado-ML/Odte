@@ -46,7 +46,9 @@ class Odte_test(unittest.TestCase):
         )
         for max_features in [4, 0.4, 1.0, None, "auto", "sqrt", "log2"]:
             tclf = Odte(
-                random_state=self._random_state, max_features=max_features
+                random_state=self._random_state,
+                max_features=max_features,
+                n_jobs=1,
             )
             tclf.fit(X, y)
             computed = tclf._get_random_subspace(X, y, tclf.max_features_)
@@ -149,6 +151,7 @@ class Odte_test(unittest.TestCase):
                     base_estimator=Stree(),
                     random_state=self._random_state,
                     n_estimators=3,
+                    n_jobs=1,
                 )
                 tclf.set_params(
                     **dict(
@@ -160,7 +163,7 @@ class Odte_test(unittest.TestCase):
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
                 # print(computed, splitter, max_features)
-                self.assertAlmostEqual(expected, computed)
+                self.assertAlmostEqual(expected, computed, msg=splitter)
 
     def test_generate_subspaces(self):
         features = 250
