@@ -1,7 +1,6 @@
 # type: ignore
 import unittest
 import os
-import random
 import warnings
 import json
 from sklearn.exceptions import ConvergenceWarning, NotFittedError
@@ -137,7 +136,6 @@ class Odte_test(unittest.TestCase):
             0.97,  # iwss None
             0.97,  # cfs None
         ]
-        random.seed(self._random_state)
         for max_features in ["auto", None]:
             for splitter in [
                 "best",
