@@ -15,7 +15,7 @@ from sklearn.utils.multiclass import (  # type: ignore
     check_classification_targets,
 )
 from sklearn.base import clone, BaseEstimator, ClassifierMixin  # type: ignore
-from sklearn.utils import check_random_state
+from sklearn.utils import check_random_state  # type: ignore
 from sklearn.ensemble import BaseEnsemble  # type: ignore
 from sklearn.utils.validation import (  # type: ignore
     check_is_fitted,
@@ -30,7 +30,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
     def __init__(
         self,
         # n_jobs = -1 to use all available cores
-        n_jobs: int = 1,
+        n_jobs: int = -1,
         base_estimator: BaseEstimator = None,
         random_state: int = 0,
         max_features: Optional[Union[str, int, float]] = None,
@@ -141,8 +141,10 @@ class Odte(BaseEnsemble, ClassifierMixin):
         hyperparams_.update(dict(random_state=random_seed))
         clf.set_params(**hyperparams_)
         n_samples = X.shape[0]
-        # bootstrap
+        # initialize random boxes
+        random.seed(random_seed)
         random_box = check_random_state(random_seed)
+        # bootstrap
         indices = random_box.randint(0, n_samples, boot_samples)
         # update weights with the chosen samples
         weights_update = np.bincount(indices, minlength=n_samples)
