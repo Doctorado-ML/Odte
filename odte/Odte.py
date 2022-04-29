@@ -15,7 +15,7 @@ from sklearn.utils.multiclass import (  # type: ignore
     check_classification_targets,
 )
 from sklearn.base import clone, BaseEstimator, ClassifierMixin  # type: ignore
-from sklearn.utils import check_random_state
+from sklearn.utils import check_random_state  # type: ignore
 from sklearn.ensemble import BaseEnsemble  # type: ignore
 from sklearn.utils.validation import (  # type: ignore
     check_is_fitted,
