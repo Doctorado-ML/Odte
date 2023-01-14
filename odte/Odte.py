@@ -31,7 +31,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         self,
         # n_jobs = -1 to use all available cores
         n_jobs: int = -1,
-        base_estimator: BaseEstimator = None,
+        estimator: BaseEstimator = None,
         random_state: int = 0,
         max_features: Optional[Union[str, int, float]] = None,
         max_samples: Optional[Union[int, float]] = None,
@@ -39,10 +39,10 @@ class Odte(BaseEnsemble, ClassifierMixin):
         be_hyperparams: str = "{}",
     ):
         super().__init__(
-            base_estimator=base_estimator,
+            estimator=estimator,
             n_estimators=n_estimators,
         )
-        self.base_estimator = base_estimator
+        self.estimator = estimator
         self.n_jobs = n_jobs
         self.n_estimators = n_estimators
         self.random_state = random_state
@@ -55,7 +55,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         return __version__
 
     def _validate_estimator(self) -> None:
-        """Check the estimator and set the base_estimator_ attribute."""
+        """Check the estimator and set the estimator_ attribute."""
         super()._validate_estimator(
             default=Stree(random_state=self.random_state)
         )
@@ -79,7 +79,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         # Initialize computed parameters
         #  Build the estimator
         self.max_features_ = self._initialize_max_features()
-        # build base_estimator_
+        # build estimator_
         self._validate_estimator()
         self.classes_, y = np.unique(y, return_inverse=True)
         self.n_classes_: int = self.classes_.shape[0]
@@ -108,7 +108,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
     ) -> Tuple[List[BaseEstimator], List[Tuple[int, ...]]]:
         n_samples = X.shape[0]
         boot_samples = self._get_bootstrap_n_samples(n_samples)
-        estimator = clone(self.base_estimator_)
+        estimator = clone(self.estimator_)
         return Parallel(n_jobs=self.n_jobs, prefer="threads")(  # type: ignore
             delayed(Odte._parallel_build_tree)(
                 estimator,
@@ -127,7 +127,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
 
     @staticmethod
     def _parallel_build_tree(
-        base_estimator_: BaseEstimator,
+        estimator_: BaseEstimator,
         X: np.ndarray,
         y: np.ndarray,
         weights: np.ndarray,
@@ -136,7 +136,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         max_features: int,
         hyperparams: str,
     ) -> Tuple[BaseEstimator, Tuple[int, ...]]:
-        clf = clone(base_estimator_)
+        clf = clone(estimator_)
         hyperparams_ = json.loads(hyperparams)
         hyperparams_.update(dict(random_state=random_seed))
         clf.set_params(**hyperparams_)

@@ -76,15 +76,15 @@ class Odte_test(unittest.TestCase):
         X, y = [[1, 2], [5, 6], [9, 10], [16, 17]], [0, 1, 1, 2]
         expected = [0, 1, 1, 2]
         tclf = Odte(
-            base_estimator=Stree(),
+            estimator=Stree(),
             random_state=self._random_state,
             n_estimators=10,
             n_jobs=-1,
         )
         tclf.set_params(
             **dict(
-                base_estimator__kernel="rbf",
-                base_estimator__random_state=self._random_state,
+                estimator__kernel="rbf",
+                estimator__random_state=self._random_state,
             )
         )
         computed = tclf.fit(X, y).predict(X)
@@ -96,14 +96,14 @@ class Odte_test(unittest.TestCase):
         X, y = load_dataset(self._random_state)
         expected = y
         tclf = Odte(
-            base_estimator=Stree(),
+            estimator=Stree(),
             random_state=self._random_state,
             max_features=1.0,
             max_samples=0.1,
         )
         tclf.set_params(
             **dict(
-                base_estimator__kernel="linear",
+                estimator__kernel="linear",
             )
         )
         computed = tclf.fit(X, y).predict(X)
@@ -146,16 +146,16 @@ class Odte_test(unittest.TestCase):
                 "cfs",
             ]:
                 tclf = Odte(
-                    base_estimator=Stree(),
+                    estimator=Stree(),
                     random_state=self._random_state,
                     n_estimators=3,
                     n_jobs=1,
                 )
                 tclf.set_params(
                     **dict(
-                        base_estimator__max_features=max_features,
-                        base_estimator__splitter=splitter,
-                        base_estimator__random_state=self._random_state,
+                        estimator__max_features=max_features,
+                        estimator__splitter=splitter,
+                        estimator__random_state=self._random_state,
                     )
                 )
                 expected = results.pop(0)
@@ -182,7 +182,7 @@ class Odte_test(unittest.TestCase):
 
     def test_nodes_leaves_not_fitted(self):
         tclf = Odte(
-            base_estimator=Stree(),
+            estimator=Stree(),
             random_state=self._random_state,
             n_estimators=3,
         )
@@ -191,13 +191,13 @@ class Odte_test(unittest.TestCase):
 
     def test_nodes_leaves_depth(self):
         tclf = Odte(
-            base_estimator=Stree(),
+            estimator=Stree(),
             random_state=self._random_state,
             n_estimators=5,
             n_jobs=1,
         )
         tclf_p = Odte(
-            base_estimator=Stree(),
+            estimator=Stree(),
             random_state=self._random_state,
             n_estimators=5,
             n_jobs=-1,
@@ -215,7 +215,7 @@ class Odte_test(unittest.TestCase):
 
     def test_nodes_leaves_SVC(self):
         tclf = Odte(
-            base_estimator=SVC(),
+            estimator=SVC(),
             random_state=self._random_state,
             n_estimators=3,
         )
@@ -227,7 +227,7 @@ class Odte_test(unittest.TestCase):
         self.assertAlmostEqual(0.0, leaves)
         self.assertAlmostEqual(0.0, nodes)
 
-    def test_base_estimator_hyperparams(self):
+    def test_estimator_hyperparams(self):
         data = [
             (Stree(), {"max_features": 7, "max_depth": 2}),
             (SVC(), {"kernel": "linear", "cache_size": 100}),
@@ -235,7 +235,7 @@ class Odte_test(unittest.TestCase):
         for clf, hyperparams in data:
             hyperparams_ = json.dumps(hyperparams)
             tclf = Odte(
-                base_estimator=clf,
+                estimator=clf,
                 random_state=self._random_state,
                 n_estimators=3,
                 be_hyperparams=hyperparams_,
