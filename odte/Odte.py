@@ -35,7 +35,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         random_state: int = 0,
         max_features: Optional[Union[str, int, float]] = None,
         max_samples: Optional[Union[int, float]] = None,
-        n_estimators: int = 100,
+        n_estimators: int = 10,
         be_hyperparams: str = "{}",
     ):
         super().__init__(

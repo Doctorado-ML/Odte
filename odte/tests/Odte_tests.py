@@ -48,6 +48,7 @@ class Odte_test(unittest.TestCase):
                 random_state=self._random_state,
                 max_features=max_features,
                 n_jobs=1,
+                n_estimators=100,
             )
             tclf.fit(X, y)
             computed = tclf._get_random_subspace(X, y, tclf.max_features_)
@@ -100,6 +101,7 @@ class Odte_test(unittest.TestCase):
             random_state=self._random_state,
             max_features=1.0,
             max_samples=0.1,
+            n_estimators=100,
         )
         tclf.set_params(
             **dict(
