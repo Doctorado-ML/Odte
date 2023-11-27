@@ -250,6 +250,18 @@ class Odte(BaseEnsemble, ClassifierMixin):
             for i in range(n_samples):
                 result[i, predictions[i]] += 1
         return result / self.n_estimators
+    
+    def get_nodes(self) ->int:
+        check_is_fitted(self, "estimators_")
+        return self.nodes_
+    
+    def get_leaves(self) ->int:
+        check_is_fitted(self, "estimators_")
+        return self.leaves_
+    
+    def get_depth(self) ->int:
+        check_is_fitted(self, "estimators_")
+        return self.depth_
 
     def nodes_leaves(self) -> Tuple[float, float]:
         check_is_fitted(self, "estimators_")
