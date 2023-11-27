@@ -214,17 +214,17 @@ class Odte_test(unittest.TestCase):
         tclf.fit(X, y)
         tclf_p.fit(X, y)
         for clf in [tclf, tclf_p]:
-            self.assertAlmostEqual(5.8, clf.depth_)
-            self.assertAlmostEqual(5.8, clf.get_depth())
-            self.assertAlmostEqual(9.4, clf.leaves_)
-            self.assertAlmostEqual(9.4, clf.get_leaves())
-            self.assertAlmostEqual(17.8, clf.nodes_)
-            self.assertAlmostEqual(17.8, clf.get_nodes())
+            self.assertEqual(29, clf.depth_)
+            self.assertEqual(29, clf.get_depth())
+            self.assertEqual(47, clf.leaves_)
+            self.assertEqual(47, clf.get_leaves())
+            self.assertEqual(89, clf.nodes_)
+            self.assertEqual(89, clf.get_nodes())
             nodes, leaves = clf.nodes_leaves()
-            self.assertAlmostEqual(9.4, leaves)
-            self.assertAlmostEqual(9.4, clf.get_leaves())
-            self.assertAlmostEqual(17.8, nodes)
-            self.assertAlmostEqual(17.8, clf.get_nodes())
+            self.assertEqual(47, leaves)
+            self.assertEqual(47, clf.get_leaves())
+            self.assertEqual(89, nodes)
+            self.assertEqual(89, clf.get_nodes())
 
     def test_nodes_leaves_SVC(self):
         tclf = Odte(

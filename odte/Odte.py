@@ -91,7 +91,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         return self
 
     def _compute_metrics(self) -> None:
-        tdepth = tnodes = tleaves = 0.0
+        tdepth = tnodes = tleaves = 0
         for estimator in self.estimators_:
             if hasattr(estimator, "nodes_leaves"):
                 nodes, leaves = estimator.nodes_leaves()
@@ -99,9 +99,12 @@ class Odte(BaseEnsemble, ClassifierMixin):
                 tdepth += depth
                 tnodes += nodes
                 tleaves += leaves
-        self.depth_ = tdepth / self.n_estimators
-        self.leaves_ = tleaves / self.n_estimators
-        self.nodes_ = tnodes / self.n_estimators
+        # self.depth_ = tdepth / self.n_estimators
+        # self.leaves_ = tleaves / self.n_estimators
+        # self.nodes_ = tnodes / self.n_estimators
+        self.depth_ = tdepth
+        self.leaves_ = tleaves
+        self.nodes_ = tnodes
 
     def _train(
         self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
@@ -250,16 +253,16 @@ class Odte(BaseEnsemble, ClassifierMixin):
             for i in range(n_samples):
                 result[i, predictions[i]] += 1
         return result / self.n_estimators
-    
-    def get_nodes(self) ->int:
+
+    def get_nodes(self) -> int:
         check_is_fitted(self, "estimators_")
         return self.nodes_
-    
-    def get_leaves(self) ->int:
+
+    def get_leaves(self) -> int:
         check_is_fitted(self, "estimators_")
         return self.leaves_
-    
-    def get_depth(self) ->int:
+
+    def get_depth(self) -> int:
         check_is_fitted(self, "estimators_")
         return self.depth_
 
