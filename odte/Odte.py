@@ -5,6 +5,7 @@ __license__ = "MIT"
 Build a forest of oblique trees based on STree, admits any base classifier
 as well
 """
+
 from __future__ import annotations
 import random
 import json
@@ -31,7 +32,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
         self,
         # n_jobs = -1 to use all available cores
         n_jobs: int = -1,
-        estimator: BaseEstimator = None,
+        estimator: BaseEstimator = Stree(),
         random_state: int = 0,
         max_features: Optional[Union[str, int, float]] = None,
         max_samples: Optional[Union[int, float]] = None,
