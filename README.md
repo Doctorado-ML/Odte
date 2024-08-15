@@ -8,4 +8,4 @@
 
 # Odte
 
-Oblique Decision Tree Ensemble
+Oblique Decision Tree Ensemble classifier based on [STree](https://github.com/doctorado-ml/stree) nodes.
