@@ -33,10 +33,10 @@ class Odte(BaseEnsemble, ClassifierMixin):
         # n_jobs = -1 to use all available cores
         n_jobs: int = -1,
         estimator: BaseEstimator = Stree(),
-        random_state: int = 0,
+        random_state: Optional[int] = None,
         max_features: Optional[Union[str, int, float]] = None,
         max_samples: Optional[Union[int, float]] = None,
-        n_estimators: int = 10,
+        n_estimators: int = 100,
         be_hyperparams: str = "{}",
     ):
         super().__init__(
@@ -62,7 +62,10 @@ class Odte(BaseEnsemble, ClassifierMixin):
         )
 
     def fit(
-        self, X: np.ndarray, y: np.ndarray, sample_weight: np.ndarray = None
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        sample_weight: Optional[np.ndarray] = None,
     ) -> Odte:
         # Check parameters are Ok.
         if self.n_estimators < 3:
@@ -100,9 +103,6 @@ class Odte(BaseEnsemble, ClassifierMixin):
                 tdepth += depth
                 tnodes += nodes
                 tleaves += leaves
-        # self.depth_ = tdepth / self.n_estimators
-        # self.leaves_ = tleaves / self.n_estimators
-        # self.nodes_ = tnodes / self.n_estimators
         self.depth_ = tdepth
         self.leaves_ = tleaves
         self.nodes_ = tnodes
@@ -113,6 +113,11 @@ class Odte(BaseEnsemble, ClassifierMixin):
         n_samples = X.shape[0]
         boot_samples = self._get_bootstrap_n_samples(n_samples)
         estimator = clone(self.estimator_)
+        defined_state = (
+            random.randint(0, 2**31)
+            if self.random_state is None
+            else self.random_state
+        )
         return Parallel(n_jobs=self.n_jobs, prefer="threads")(  # type: ignore
             delayed(Odte._parallel_build_tree)(
                 estimator,
@@ -125,7 +130,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
                 self.be_hyperparams,
             )
             for random_seed in range(
-                self.random_state, self.random_state + self.n_estimators
+                defined_state, defined_state + self.n_estimators
             )
         )
 

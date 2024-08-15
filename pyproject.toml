@@ -1,5 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Odte"
+description = "Oblique decision tree Ensemble."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Ricardo Montañana", email = "ricardo.montanana@alu.uclm.es" },
+]
+dynamic = ['version']
+dependencies = ["stree>=1.4"]
+requires-python = ">=3.11"
+keywords = [
+  "scikit-learn",
+  "oblique-classifier",
+  "oblique-decision-tree",
+  "decision-tree",
+  "ensemble",
+  "svm",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development",
+  "Topic :: Scientific/Engineering",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+dev = ["black", "flake8", "coverage", "mypy", "pandas", "hatch", "pip-audit"]
+doc = ["sphinx", "myst-parser", "sphinx_rtd_theme", "sphinx-autodoc-typehints"]
+
+[project.urls]
+Home = "https://github.com/doctorado-ml/odte"
+
+[tool.hatch.version]
+path = "odte/_version.py"
+
+[tool.mypy]
+exclude = ['tests']
+
+[tool.coverage.run]
+branch = true
+source = ["odte"]
+command_line = "-m unittest discover -s odte.tests"
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+
 [tool.black]
 line-length = 79
+target_version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
