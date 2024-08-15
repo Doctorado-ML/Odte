@@ -40,6 +40,7 @@ doc = ["sphinx", "myst-parser", "sphinx_rtd_theme", "sphinx-autodoc-typehints"]
 
 [project.urls]
 Home = "https://github.com/doctorado-ml/odte"
+Docs = "https://odte.readthedocs.io/en/latest/index.html"
 
 [tool.hatch.version]
 path = "odte/_version.py"
