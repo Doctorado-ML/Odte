@@ -1,0 +1,13 @@
+# Hyperparameters
+
+|     | **Hyperparameter**  | **Type/Values**                                                | **Default** | |
+| --- | ------------------- | -------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   | estimator                  | \<sklearn.BaseEstimator\>                                                      | Stree()         | Base estimator used to build each element of the ensemble.                                                                                                              |
+|   | n_jobs              | \<int\>              | -1      | Specifies the number of threads used to build the ensemble (-1 equals to all cores available) |
+|   | random_state        | \<int\> | None        | Controls the pseudo random number generation for shuffling the data for probability estimates. Ignored when probability is False.<br>Pass an int for reproducible output across multiple function calls |
+|     | max_features        | \<int\>, \<float\> <br><br>or {“auto”, “sqrt”, “log2”}         | None        | The number of features to consider in each tree:<br>\<int\> _max_features_ features for each tree.<br>\<float\> _max_features_ is a fraction and int(_max_features_ \* _n_features_) features are considered for each tree.<br>“auto” _max_features_=sqrt(_n_features_)<br>“sqrt” _max_features_=sqrt(_n_features_)<br>“log2” _max_features_=log2(_n_features_)<br>_None_ _max_features_=_n_features_  |
+|  | max_samples              | \<int\>, \<float\>                                                        | None        |The number of samples to consider for bootstrap:<br>\<int\> _max_samples_ samples for each tree.<br>\<float\> _max_samples_ is a fraction and int(_max_samples_ \* _n_samples_) samples for each tree. |
+|   | n_estimators               | \<int\>                                | 100       | The number of trees the ensemble is going to build |
+|     | be_hyperparams      | \<str\>                                    | "{}"    | Hyperparameteres passed to the base estimator, i.e. "{\\"C\\": 17, \\"kernel\\": \\"rbf\\"}"|
+
+

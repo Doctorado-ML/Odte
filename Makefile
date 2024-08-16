@@ -1,44 +1,35 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
-.PHONY: coverage deps help lint push test doc build
+.PHONY: audit coverage help lint test doc doc-clean build
 
 coverage:  ## Run tests with coverage
-	coverage erase
-	coverage run -m unittest -v odte.tests
-	coverage report -m
+	@coverage erase
+	@coverage run -m unittest -v odte.tests
+	@coverage report -m
 
-deps:  ## Install dependencies
-	pip install -r requirements.txt
-
-devdeps:  ## Install development dependencies
-	pip install black pip-audit flake8 mypy coverage
-
-lint:  ## Lint and static-check
-	black odte
-	flake8 odte
-	mypy odte --exclude tests
+lint:  ## Lint source files
+	@black odte
+	@flake8 odte
+	@mypy odte
 
 audit: ## Audit pip
-	pip-audit
-
-push:  ## Push code with tags
-	git push && git push --tags
+	@pip-audit
 
 test:  ## Run tests
-	python -m unittest -v odte.tests
+	@python -m unittest -v odte.tests
 
 doc:  ## Update documentation
-	make -C docs --makefile=Makefile html
+	@make -C docs --makefile=Makefile html
 
 build:  ## Build package
-	rm -fr dist/*
-	rm -fr build/*
-	python setup.py sdist bdist_wheel
+	@rm -fr dist/*
+	@rm -fr build/*
+	@hatch build
 
-doc-clean:  ## Update documentation
-	make -C docs --makefile=Makefile clean
+doc-clean:  ## Clean documentation folders
+	@make -C docs --makefile=Makefile clean
 
-help: ## Show help message
+help: ## Show this help message
 	@IFS=$$'\n' ; \
 	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
 	printf "%s\n\n" "Usage: make [task]"; \

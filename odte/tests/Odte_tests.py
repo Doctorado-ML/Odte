@@ -180,7 +180,7 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         from sklearn.utils.estimator_checks import check_estimator
 
-        check_estimator(Odte())
+        check_estimator(Odte(n_estimators=10))
 
     def test_nodes_leaves_not_fitted(self):
         tclf = Odte(
