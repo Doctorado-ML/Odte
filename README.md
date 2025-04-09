@@ -1,3 +1,5 @@
+# Odte
+
 ![CI](https://github.com/Doctorado-ML/Odte/workflows/CI/badge.svg)
 [![CodeQL](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/Doctorado-ML/odte/branch/master/graph/badge.svg)](https://codecov.io/gh/Doctorado-ML/odte)
@@ -5,7 +7,5 @@
 [![PyPI version](https://badge.fury.io/py/Odte.svg)](https://badge.fury.io/py/Odte)
 ![https://img.shields.io/badge/python-3.11%2B-blue](https://img.shields.io/badge/python-3.11%2B-brightgreen)
 [![DOI](https://zenodo.org/badge/271595804.svg)](https://zenodo.org/badge/latestdoi/271595804)
-
-# Odte
 
 Oblique Decision Tree Ensemble classifier based on [STree](https://github.com/doctorado-ml/stree) nodes.
