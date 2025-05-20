@@ -272,6 +272,6 @@ class Odte(BaseEnsemble, ClassifierMixin):
         check_is_fitted(self, "estimators_")
         return self.depth_
 
-    def nodes_leaves(self) -> Tuple[float, float]:
+    def nodes_leaves(self) -> Tuple[int, int]:
         check_is_fitted(self, "estimators_")
-        return self.nodes_, self.leaves_
+        return (self.get_nodes(), self.get_leaves())
