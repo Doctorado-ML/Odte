@@ -1,1 +1,2 @@
+scikit-learn==1.5.2
 stree>=1.4
