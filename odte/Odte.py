@@ -68,9 +68,9 @@ class Odte(BaseEnsemble, ClassifierMixin):
         sample_weight: Optional[np.ndarray] = None,
     ) -> Odte:
         # Check parameters are Ok.
-        if self.n_estimators < 3:
+        if self.n_estimators < 1:
             raise ValueError(
-                f"n_estimators must be greater than 2 but got (n_estimators=\
+                f"n_estimators must be greater than 0 but got (n_estimators=\
                     {self.n_estimators})"
             )
         check_classification_targets(y)

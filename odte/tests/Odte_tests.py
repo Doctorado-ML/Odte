@@ -64,7 +64,7 @@ class Odte_test(unittest.TestCase):
                 tclf.fit(*load_dataset(self._random_state))
 
     def test_bogus_n_estimator(self):
-        values = [0, -1, 2]
+        values = [0, -1]
         for n_estimators in values:
             with self.assertRaises(ValueError):
                 tclf = Odte(n_estimators=n_estimators)
