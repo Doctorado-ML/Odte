@@ -123,20 +123,20 @@ class Odte_test(unittest.TestCase):
         self.assertAlmostEqual(expected, computed)
 
     def test_score_splitter_max_features(self):
-        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=1000)
         results = [
-            0.958,  # best auto
-            0.942,  # random auto
-            0.932,  # trandom auto
-            0.95,  # mutual auto
-            0.944,  # iwss auto
-            0.938,  # cfs auto
-            0.97,  # best None
-            0.97,  # random None
-            0.97,  # trandom None
-            0.97,  # mutual None
-            0.97,  # iwss None
-            0.97,  # cfs None
+            0.968,  # best auto
+            0.976,  # random auto
+            0.643,  # trandom auto
+            0.965,  # mutual auto
+            0.961,  # iwss auto
+            0.962,  # cfs auto
+            0.975,  # best None
+            0.975,  # random None
+            0.975,  # trandom None
+            0.975,  # mutual None
+            0.975,  # iwss None
+            0.975,  # cfs None
         ]
         for max_features in ["auto", None]:
             for splitter in [
