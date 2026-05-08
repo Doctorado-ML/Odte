@@ -11,7 +11,7 @@ authors = [
   { name = "Ricardo Montañana", email = "ricardo.montanana@alu.uclm.es" },
 ]
 dynamic = ['version']
-dependencies = ["STree>=1.4.1", "pandas"]
+dependencies = ["STree>=1.4.2", "pandas"]
 requires-python = ">=3.11"
 keywords = [
   "scikit-learn",

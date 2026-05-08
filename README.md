@@ -1,6 +1,6 @@
 # Odte
 
-![CI](https://github.com/Doctorado-ML/Odte/workflows/CI/badge.svg)
+[![CI](https://github.com/Doctorado-ML/Odte/actions/workflows/main.yml/badge.svg)](https://github.com/Doctorado-ML/Odte/actions/workflows/main.yml)
 [![CodeQL](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/Doctorado-ML/odte/branch/master/graph/badge.svg)](https://codecov.io/gh/Doctorado-ML/odte)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4b5ef87584b4095b6e49aefbe594c82)](https://app.codacy.com/gh/Doctorado-ML/Odte/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
