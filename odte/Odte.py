@@ -180,10 +180,8 @@ class Odte(BaseEnsemble, ClassifierMixin):
                     but got {self.max_samples}"
                 raise ValueError(message)
             return int(round(self.max_samples * n_samples))
-        raise ValueError(
-            f"Expected values int, float but got \
-            {type(self.max_samples)}"
-        )
+        raise ValueError(f"Expected values int, float but got \
+            {type(self.max_samples)}")
 
     def _initialize_max_features(self) -> int:
         if isinstance(self.max_features, str):

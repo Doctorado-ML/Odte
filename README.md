@@ -3,7 +3,7 @@
 ![CI](https://github.com/Doctorado-ML/Odte/workflows/CI/badge.svg)
 [![CodeQL](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Doctorado-ML/Odte/actions/workflows/codeql-analysis.yml)
 [![codecov](https://codecov.io/gh/Doctorado-ML/odte/branch/master/graph/badge.svg)](https://codecov.io/gh/Doctorado-ML/odte)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4b5ef87584b4095b6e49aefbe594c82)](https://www.codacy.com/gh/Doctorado-ML/Odte/dashboard?utm_source=github.com&utm_medium=referral&utm_content=Doctorado-ML/Odte&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4b5ef87584b4095b6e49aefbe594c82)](https://app.codacy.com/gh/Doctorado-ML/Odte/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![PyPI version](https://badge.fury.io/py/Odte.svg)](https://badge.fury.io/py/Odte)
 ![https://img.shields.io/badge/python-3.11%2B-blue](https://img.shields.io/badge/python-3.11%2B-brightgreen)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Doctorado-ML/Odte)
@@ -286,12 +286,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Author
 
 Ricardo Montañana Gómez
-- Email: ricardo.montanana@alu.uclm.es
+
+- Email: <ricardo.montanana@alu.uclm.es>
 - ORCID: [0000-0003-3242-5452](https://orcid.org/0000-0003-3242-5452)
 
 ## Links
 
-- **GitHub**: https://github.com/doctorado-ml/odte
-- **Documentation**: https://odte.readthedocs.io
-- **PyPI**: https://pypi.org/project/Odte/
-- **STree Project**: https://github.com/doctorado-ml/stree
+- **GitHub**: <https://github.com/doctorado-ml/odte>
+- **Documentation**: <https://odte.readthedocs.io>
+- **PyPI**: <https://pypi.org/project/Odte/>
+- **STree Project**: <https://github.com/doctorado-ml/stree>
