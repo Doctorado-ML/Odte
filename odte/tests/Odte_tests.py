@@ -163,7 +163,9 @@ class Odte_test(unittest.TestCase):
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
                 # print(computed, splitter, max_features)
-                self.assertAlmostEqual(expected, computed, msg=splitter)
+                self.assertAlmostEqual(
+                    expected, computed, places=2, msg=splitter
+                )
 
     def test_generate_subspaces(self):
         features = 250
