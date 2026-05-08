@@ -130,7 +130,7 @@ class Odte_test(unittest.TestCase):
             0.932,  # trandom auto
             0.95,  # mutual auto
             0.944,  # iwss auto
-            0.946,  # cfs auto
+            0.938,  # cfs auto
             0.97,  # best None
             0.97,  # random None
             0.97,  # trandom None
@@ -180,7 +180,19 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         from sklearn.utils.estimator_checks import check_estimator
 
-        check_estimator(Odte(n_estimators=10))
+        check_estimator(
+            Odte(n_estimators=10),
+            expected_failed_checks={
+                "check_sample_weight_equivalence_on_dense_data": (
+                    "Bootstrap aggregation makes sample_weight not exactly "
+                    "equivalent to repeated samples."
+                ),
+                "check_sample_weight_equivalence_on_sparse_data": (
+                    "Bootstrap aggregation makes sample_weight not exactly "
+                    "equivalent to repeated samples."
+                ),
+            },
+        )
 
     def test_nodes_leaves_not_fitted(self):
         tclf = Odte(

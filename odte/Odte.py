@@ -21,13 +21,14 @@ from sklearn.ensemble import BaseEnsemble  # type: ignore
 from sklearn.utils.validation import (  # type: ignore
     check_is_fitted,
     _check_sample_weight,
+    validate_data,
 )
 from joblib import Parallel, delayed  # type: ignore
 from stree import Stree  # type: ignore
 from ._version import __version__
 
 
-class Odte(BaseEnsemble, ClassifierMixin):
+class Odte(ClassifierMixin, BaseEnsemble):
     def __init__(
         self,
         # n_jobs = -1 to use all available cores
@@ -74,7 +75,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
                     {self.n_estimators})"
             )
         check_classification_targets(y)
-        X, y = self._validate_data(X, y)
+        X, y = validate_data(self, X, y)
         # if sample_weight is None return np.ones
         sample_weights = _check_sample_weight(
             sample_weight, X, dtype=np.float64
@@ -249,7 +250,7 @@ class Odte(BaseEnsemble, ClassifierMixin):
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         check_is_fitted(self, "estimators_")
         # Input validation
-        X = self._validate_data(X, reset=False)
+        X = validate_data(self, X, reset=False)
         n_samples = X.shape[0]
         result = np.zeros((n_samples, self.n_classes_))
         for tree, features in zip(self.estimators_, self.subspaces_):
