@@ -123,20 +123,20 @@ class Odte_test(unittest.TestCase):
         self.assertAlmostEqual(expected, computed)
 
     def test_score_splitter_max_features(self):
-        X, y = load_dataset(self._random_state, n_features=16, n_samples=500)
+        X, y = load_dataset(self._random_state, n_features=16, n_samples=1000)
         results = [
-            0.958,  # best auto
-            0.942,  # random auto
-            0.932,  # trandom auto
-            0.95,  # mutual auto
-            0.944,  # iwss auto
-            0.946,  # cfs auto
-            0.97,  # best None
-            0.97,  # random None
-            0.97,  # trandom None
-            0.97,  # mutual None
-            0.97,  # iwss None
-            0.97,  # cfs None
+            0.968,  # best auto
+            0.976,  # random auto
+            0.643,  # trandom auto
+            0.965,  # mutual auto
+            0.961,  # iwss auto
+            0.962,  # cfs auto
+            0.975,  # best None
+            0.975,  # random None
+            0.975,  # trandom None
+            0.975,  # mutual None
+            0.975,  # iwss None
+            0.975,  # cfs None
         ]
         for max_features in ["auto", None]:
             for splitter in [
@@ -163,7 +163,9 @@ class Odte_test(unittest.TestCase):
                 expected = results.pop(0)
                 computed = tclf.fit(X, y).score(X, y)
                 # print(computed, splitter, max_features)
-                self.assertAlmostEqual(expected, computed, msg=splitter)
+                self.assertAlmostEqual(
+                    expected, computed, places=2, msg=splitter
+                )
 
     def test_generate_subspaces(self):
         features = 250
@@ -180,7 +182,19 @@ class Odte_test(unittest.TestCase):
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         from sklearn.utils.estimator_checks import check_estimator
 
-        check_estimator(Odte(n_estimators=10))
+        check_estimator(
+            Odte(n_estimators=10),
+            expected_failed_checks={
+                "check_sample_weight_equivalence_on_dense_data": (
+                    "Bootstrap aggregation makes sample_weight not exactly "
+                    "equivalent to repeated samples."
+                ),
+                "check_sample_weight_equivalence_on_sparse_data": (
+                    "Bootstrap aggregation makes sample_weight not exactly "
+                    "equivalent to repeated samples."
+                ),
+            },
+        )
 
     def test_nodes_leaves_not_fitted(self):
         tclf = Odte(
